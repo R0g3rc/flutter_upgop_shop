@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_upgop_shop/features/auth/presentation/providers/login_form_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_upgop_shop/features/shared/shared.dart';
 
@@ -49,11 +51,13 @@ class LoginScreen extends StatelessWidget {
   }
 }
 
-class _LoginForm extends StatelessWidget {
+class _LoginForm extends ConsumerWidget {
   const _LoginForm();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final loginForm = ref.watch(loginFormProvider);
+
     final textStyles = Theme.of(context).textTheme;
 
     return Padding(
@@ -64,13 +68,24 @@ class _LoginForm extends StatelessWidget {
           Text('Login', style: textStyles.titleLarge),
           const SizedBox(height: 90),
 
-          const CustomTextFormField(
+          CustomTextFormField(
             label: 'Correo',
             keyboardType: TextInputType.emailAddress,
+            onChanged: ref.read(loginFormProvider.notifier).onEmailChanged,
+            errorMessage: loginForm.isFormPosted
+                ? loginForm.email.errorMessage
+                : null,
           ),
           const SizedBox(height: 30),
 
-          const CustomTextFormField(label: 'Contraseña', obscureText: true),
+          CustomTextFormField(
+            label: 'Contraseña',
+            onChanged: ref.read(loginFormProvider.notifier).onPasswordChanged,
+            errorMessage: loginForm.isFormPosted
+                ? loginForm.password.errorMessage
+                : null,
+            obscureText: true,
+          ),
 
           const SizedBox(height: 30),
 
@@ -80,7 +95,8 @@ class _LoginForm extends StatelessWidget {
             child: CustomFilledButton(
               text: 'Ingresar',
               buttonColor: Colors.black,
-              onPressed: () {},
+              onPressed: () =>
+                  ref.read(loginFormProvider.notifier).onFormSubmit(),
             ),
           ),
 
