@@ -1,5 +1,7 @@
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:flutter_upgop_shop/features/shared/infrastructure/inputs/email.dart';
 import 'package:flutter_upgop_shop/features/shared/infrastructure/inputs/password.dart';
+import 'package:formz/formz.dart';
 
 class LoginFormState {
   final bool isPosting;
@@ -15,4 +17,74 @@ class LoginFormState {
     this.email = const Email.pure(),
     this.password = const Password.pure(),
   });
+
+  @override
+  String toString() {
+    return '''
+LoginFormState {
+      isPosting: $isPosting,
+      isFormPosted: $isFormPosted,
+      isValid: $isValid,
+      email: $email,
+      password: $password,
+    }''';
+  }
+
+  LoginFormState copyWith({
+    bool? isPosting,
+    bool? isFormPosted,
+    bool? isValid,
+    Email? email,
+    Password? password,
+  }) {
+    return LoginFormState(
+      isPosting: isPosting ?? this.isPosting,
+      isFormPosted: isFormPosted ?? this.isFormPosted,
+      isValid: isValid ?? this.isValid,
+      email: email ?? this.email,
+      password: password ?? this.password,
+    );
+  }
 }
+
+class LoginFormNotifier extends StateNotifier<LoginFormState> {
+  LoginFormNotifier() : super(LoginFormState());
+
+  onEmailChanged(String value) {
+    final email = Email.dirty(value);
+    state = state.copyWith(
+      email: email,
+      isValid: Formz.validate([email, state.password]),
+    );
+  }
+
+  onPasswordChanged(String value) {
+    final password = Password.dirty(value);
+    state = state.copyWith(
+      password: password,
+      isValid: Formz.validate([password, state.email]),
+    );
+  }
+
+  onFormSubmit() {
+    _touchAllFields();
+    if (!state.isValid) return;
+    print(state);
+  }
+
+  _touchAllFields() {
+    final email = Email.dirty(state.email.value);
+    final password = Password.dirty(state.password.value);
+    state = state.copyWith(
+      isFormPosted: true,
+      email: email,
+      password: password,
+      isValid: Formz.validate([email, password]),
+    );
+  }
+}
+
+final loginFormProvider =
+    StateNotifierProvider.autoDispose<LoginFormNotifier, LoginFormState>((ref) {
+      return LoginFormNotifier();
+    });
