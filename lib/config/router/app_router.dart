@@ -3,7 +3,7 @@ import 'package:flutter_upgop_shop/features/auth/auth.dart';
 import 'package:flutter_upgop_shop/features/products/products.dart';
 
 final appRouter = GoRouter(
-  initialLocation: '/',
+  initialLocation: '/login',
   routes: [
     ///* Auth Routes
     GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
