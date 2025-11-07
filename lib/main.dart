@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:crud_app/config/config.dart';
-import 'package:crud_app/config/router/app_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-void main() {
+void main() async {
+  await Enviroment.initEnv();
   runApp(const ProviderScope(child: MainApp()));
 }
 
