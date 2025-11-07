@@ -2,7 +2,9 @@
 
 # Creditos a: https://github.com/Klerith
 
-Este es un proyecto para trabajar con:
+## Repositorio base original: https://github.com/Klerith/flutter-authenticated-crud
+
+Este es un proyecto en el que se trabajo con:
 
 - Cámara
 - Tokens de acceso
