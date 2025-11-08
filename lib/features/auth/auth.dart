@@ -1,4 +1,4 @@
 export 'presentation/screens/screens.dart';
-
-
-export 'presentation/widgets/widgets.dart';
+export 'domain/domian.dart';
+export 'infrastructure/infrastructure.dart';
+export 'presentation/providers/providers.dart';
