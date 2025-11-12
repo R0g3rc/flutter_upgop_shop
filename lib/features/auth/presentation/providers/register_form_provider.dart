@@ -1,3 +1,4 @@
+import 'package:crud_app/features/auth/auth.dart';
 import 'package:crud_app/features/shared/shared.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
@@ -10,8 +11,13 @@ final registerFormProvider =
 
 // 2.- Notifier
 class RegisterFormNotifier extends Notifier<RegisterFormState> {
+  late final Function(String, String, String) registerUserCallback;
+
   @override
-  RegisterFormState build() => const RegisterFormState();
+  RegisterFormState build() {
+    registerUserCallback = ref.watch(authProvider.notifier).registerUser;
+    return RegisterFormState();
+  }
 
   void onFullNameChange(String value) {
     state = state.copyWith(fullName: value);
@@ -54,7 +60,11 @@ class RegisterFormNotifier extends Notifier<RegisterFormState> {
   void onRegisterSubmit() async {
     _touchAllFields();
     if (!state.isValid) return;
-    print(state);
+    await registerUserCallback(
+      state.email.value,
+      state.password.value,
+      state.fullName,
+    );
   }
 
   _touchAllFields() {

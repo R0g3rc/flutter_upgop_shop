@@ -27,20 +27,28 @@ class AuthNotifier extends Notifier<AuthState> {
     try {
       final user = await authRepository.login(email, password);
       _setLoggedUser(user);
-    } on WrongCredentials {
-      logout("Wrong Credentials");
-    } on ConnectionTimeout {
-      logout('Connection Timeout');
+    } on CustomError catch (e) {
+      logout(e.message);
     } catch (e) {
-      logout("Uncontrolled Error");
+      logout("Error no controlado");
     }
   }
 
   Future<void> registerUser(
-    String fullName,
     String email,
     String password,
-  ) async {}
+    String fullName,
+  ) async {
+    await Future.delayed(Duration(milliseconds: 500));
+    try {
+      final newUser = await authRepository.register(email, password, fullName);
+      _setLoggedUser(newUser);
+    } on CustomError catch (e) {
+      logout(e.message);
+    } catch (e) {
+      logout("Error no controlado");
+    }
+  }
 
   Future<void> checkAuthStatus() async {}
 
