@@ -1,3 +1,4 @@
+import 'package:crud_app/features/auth/auth.dart';
 import 'package:crud_app/features/shared/infraestructure/inputs/inputs.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
@@ -9,8 +10,13 @@ final loginFormProvider = NotifierProvider<LoginFormNotifier, LoginFormState>(
 
 // 2.- Notifier
 class LoginFormNotifier extends Notifier<LoginFormState> {
+  late final Function(String, String) loginUserCallback;
+
   @override
-  LoginFormState build() => LoginFormState();
+  LoginFormState build() {
+    loginUserCallback = ref.watch(authProvider.notifier).loginUser;
+    return LoginFormState();
+  }
 
   void onEmailChange(String value) {
     final Email newEmail = Email.dirty(value);
@@ -28,10 +34,10 @@ class LoginFormNotifier extends Notifier<LoginFormState> {
     );
   }
 
-  void onLoginSubmit() {
+  void onLoginSubmit() async {
     _touchAllFields();
     if (!state.isValid) return;
-    print(state);
+    await loginUserCallback(state.email.value, state.password.value);
   }
 
   _touchAllFields() {
