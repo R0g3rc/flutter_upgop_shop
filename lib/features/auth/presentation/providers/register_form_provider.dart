@@ -5,7 +5,7 @@ import 'package:formz/formz.dart';
 
 // 3.- Provider
 final registerFormProvider =
-    NotifierProvider<RegisterFormNotifier, RegisterFormState>(
+    NotifierProvider.autoDispose<RegisterFormNotifier, RegisterFormState>(
       RegisterFormNotifier.new,
     );
 

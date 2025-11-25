@@ -4,9 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
 
 // 3.- Provider
-final loginFormProvider = NotifierProvider<LoginFormNotifier, LoginFormState>(
-  LoginFormNotifier.new,
-);
+final loginFormProvider =
+    NotifierProvider.autoDispose<LoginFormNotifier, LoginFormState>(
+      LoginFormNotifier.new,
+    );
 
 // 2.- Notifier
 class LoginFormNotifier extends Notifier<LoginFormState> {

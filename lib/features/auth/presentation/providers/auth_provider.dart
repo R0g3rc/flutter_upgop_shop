@@ -1,5 +1,12 @@
 import 'package:crud_app/features/auth/auth.dart';
+import 'package:crud_app/features/shared/infraestructure/services/key_storage.dart';
+import 'package:crud_app/features/shared/infraestructure/services/key_storage_impl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+// 3.-  Provider Principal
+final authProvider = NotifierProvider<AuthNotifier, AuthState>(
+  AuthNotifier.new,
+);
 
 // 3.1.- Provider Repository
 final authRepositoryProvider = Provider<AuthRepositoryImpl>((ref) {
@@ -7,18 +14,22 @@ final authRepositoryProvider = Provider<AuthRepositoryImpl>((ref) {
   return AuthRepositoryImpl(dataSource);
 });
 
-// 3.-  Provider Principal
-final authProvider = NotifierProvider<AuthNotifier, AuthState>(
-  AuthNotifier.new,
-);
+// 3.2 Key Storage
+final keyStorageProvider = Provider<KeyStorageImpl>((ref) {
+  final keyStorage = KeyStorageImpl();
+  return keyStorage;
+});
 
 // 2.- Notifier
 class AuthNotifier extends Notifier<AuthState> {
   late final AuthRepository authRepository;
+  late final KeyStorageService keyStorage;
 
   @override
   AuthState build() {
     authRepository = ref.watch(authRepositoryProvider);
+    keyStorage = ref.watch(keyStorageProvider);
+    checkAuthStatus();
     return AuthState();
   }
 
@@ -50,15 +61,26 @@ class AuthNotifier extends Notifier<AuthState> {
     }
   }
 
-  Future<void> checkAuthStatus() async {}
+  Future<void> checkAuthStatus() async {
+    final token = await keyStorage.getValue<String>('token');
+    if (token == null) {
+      return logout();
+    }
+    try {
+      final user = await authRepository.checkAuthStatus(token);
+      _setLoggedUser(user);
+    } catch (e) {
+      logout();
+    }
+  }
 
-  _setLoggedUser(User user) {
-    // TODO: Save user token
+  _setLoggedUser(User user) async {
+    await keyStorage.setKeyValue('token', user.token);
     state = state.copyWith(user: user, authStatus: AuthStatus.authenticated);
   }
 
   Future<void> logout([String? errorMessage]) async {
-    // TODO: Clean user token
+    await keyStorage.removeKey('token');
     state = state.copyWith(
       authStatus: AuthStatus.unauthenticated,
       user: null,
