@@ -11,7 +11,7 @@ class AuthDatasourceImpl extends AuthDataSource {
   @override
   Future<User> login(String email, String password) async {
     try {
-      final response = await dio.post(
+      final response = await dioCfg.post(
         '/auth/login',
         data: {'email': email, 'password': password},
       );
@@ -33,7 +33,7 @@ class AuthDatasourceImpl extends AuthDataSource {
   @override
   Future<User> register(String email, String password, String fullName) async {
     try {
-      final response = await dio.post(
+      final response = await dioCfg.post(
         "/auth/register",
         data: {"email": email, "password": password, "fullName": fullName},
       );
