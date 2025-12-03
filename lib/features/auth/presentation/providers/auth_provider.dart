@@ -1,6 +1,7 @@
 import 'package:crud_app/features/auth/auth.dart';
 import 'package:crud_app/features/shared/infraestructure/services/key_storage.dart';
 import 'package:crud_app/features/shared/infraestructure/services/key_storage_impl.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // 3.-  Provider Principal
@@ -24,6 +25,9 @@ final keyStorageProvider = Provider<KeyStorageImpl>((ref) {
 class AuthNotifier extends Notifier<AuthState> {
   late final AuthRepository authRepository;
   late final KeyStorageService keyStorage;
+  late final ValueNotifier<AuthStatus> authStatusNotifier = ValueNotifier(
+    AuthStatus.checking,
+  );
 
   @override
   AuthState build() {
@@ -31,6 +35,17 @@ class AuthNotifier extends Notifier<AuthState> {
     keyStorage = ref.watch(keyStorageProvider);
     checkAuthStatus();
     return AuthState();
+  }
+
+  _updateAuthStatus(AuthStatus status) {
+    state = state.copyWith(authStatus: status);
+    authStatusNotifier.value = status; // <-- actualizar ValueNotifier
+  }
+
+  _setLoggedUser(User user) async {
+    await keyStorage.setKeyValue('token', user.token);
+    _updateAuthStatus(AuthStatus.authenticated);
+    state = state.copyWith(user: user, authStatus: AuthStatus.authenticated);
   }
 
   Future<void> loginUser(String email, String password) async {
@@ -74,13 +89,9 @@ class AuthNotifier extends Notifier<AuthState> {
     }
   }
 
-  _setLoggedUser(User user) async {
-    await keyStorage.setKeyValue('token', user.token);
-    state = state.copyWith(user: user, authStatus: AuthStatus.authenticated);
-  }
-
   Future<void> logout([String? errorMessage]) async {
     await keyStorage.removeKey('token');
+    _updateAuthStatus(AuthStatus.unauthenticated);
     state = state.copyWith(
       authStatus: AuthStatus.unauthenticated,
       user: null,
